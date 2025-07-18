@@ -84,6 +84,11 @@ if(!isTRUE(require(elevatr, quietly = TRUE))) {
 } else {
   require(elevatr)}
 
+if(!isTRUE(require(rgbif, quietly = TRUE))) {
+  install.packages("rgbif", dependencies = TRUE); library(rgbif)
+} else {
+  require(rgbif)}
+
 if(!isTRUE(require(rn2kcz, quietly = TRUE))) {
   remotes::install_github("jonasgaigr/rn2kcz", dependencies = TRUE); library(rn2kcz)
 } else {
@@ -164,6 +169,15 @@ data <-
     "Data/Input/data_scrutator.csv",
     locale = locale(encoding = "Windows-1250")
   ) %>%
+  dplyr::mutate(
+    DATE = as.Date(as.character(DATUM_OD), format = '%d.%m.%Y'),
+    # Redukce data na den
+    DAY = as.numeric(substring(DATUM_OD, 1, 2)),
+    # Redukce data na měsíc
+    MONTH = as.numeric(substring(DATUM_OD, 4, 5)),
+    # Redukce data na rok
+    YEAR = as.numeric(substring(DATUM_OD, 7, 11)),
+    ) %>%
   sf::st_as_sf(
     coords = c(
       "X", 
@@ -174,7 +188,18 @@ data <-
   sf::st_transform(
     .,
     crs = 4326
-    )
+    ) %>%
+  dplyr::mutate(
+    decimalLongitude = sf::st_coordinates(.)[, 1],
+    decimalLatitude = sf::st_coordinates(.)[, 2]
+  )
+
+#--------------------------------------------------#
+## Load species GBIF data  -----
+#--------------------------------------------------#
+
+data_world <- occ_data(taxonKey=1065995)
+data_world_counts <- data_world$data %>% count(datasetKey, sort=TRUE) 
 
 #----------------------------------------------------------#
 # End config -----
