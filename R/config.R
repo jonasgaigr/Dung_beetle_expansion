@@ -198,9 +198,30 @@ data <-
 ## Load species GBIF data  -----
 #--------------------------------------------------#
 
-data_world <- occ_data(taxonKey=1065995)
+data_world <- occ_data(taxonKey=1065995, limit = 15000)
 data_world_counts <- data_world$data %>% count(datasetKey, sort=TRUE) 
 
+data_w <- 
+  data_world$data %>%
+  dplyr::mutate(
+    decade = floor(year / 10) * 10,
+    zone = case_when(
+      decimalLatitude >= 0 & decimalLatitude < 23.5 ~ "Tropical_N",
+      decimalLatitude >= 23.5 & decimalLatitude < 35 ~ "Subtropical_N",
+      decimalLatitude >= 35 & decimalLatitude < 55 ~ "Temperate_N",
+      decimalLatitude >= 55 & decimalLatitude < 66.5 ~ "Boreal_N",
+      decimalLatitude >= 66.5 ~ "Arctic",
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  dplyr::filter(
+    is.na(zone) == FALSE
+  ) %>%
+  filter(
+    year >= 1970
+    )
+
+nrow(data_w)
 #----------------------------------------------------------#
 # End config -----
 #----------------------------------------------------------#
