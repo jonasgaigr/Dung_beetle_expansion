@@ -1,7 +1,7 @@
 #----------------------------------------------------------#
 #
 #
-#           Exploring Coprimorphus scrutator occurrence
+#       Exploring Coprimorphus scrutator occurrence
 #
 #                     Config file
 #
@@ -198,8 +198,18 @@ data <-
 ## Load species GBIF data  -----
 #--------------------------------------------------#
 
-data_world <- occ_data(taxonKey=1065995, limit = 15000)
-data_world_counts <- data_world$data %>% count(datasetKey, sort=TRUE) 
+data_world <- 
+  rgbif::occ_data(
+    taxonKey = 1065995, 
+    limit = 15000
+    )
+
+data_world_counts <- 
+  data_world$data %>% 
+  count(
+    datasetKey, 
+    sort = TRUE
+    ) 
 
 data_w <- 
   data_world$data %>%
