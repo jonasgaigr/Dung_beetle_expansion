@@ -5,7 +5,7 @@ data_w %>%
   count(year) %>%
   ggplot(aes(x = year, y = n)) +
   geom_col(fill = "grey30") +
-  labs(title = "Sampling effort over time", x = "Year", y = "Number of records") +
+  labs(title = "Sampling effort over time", x = "\nYear", y = "Number of records\n") +
   theme_bw()
 
 effort_by_year <- data_w %>%
@@ -35,7 +35,7 @@ data_w_rarefied <- data_w %>%
 table(data_w_rarefied$zone)
 
 model_w_lat_rarefied <- lm(
-  decimalLatitude ~ year*country,
+  decimalLatitude ~ year,
   data = data_w_rarefied
 )
 summary(model_w_lat_rarefied)
@@ -59,17 +59,39 @@ ggplot(data_w, aes(x = year, y = decimalLatitude)) +
 
 data_w_decade <- 
   data_w %>%
-  dplyr::mutate(decade = floor(year / 10) * 10)
+  mutate(
+    decade = floor(year / 10) * 10
+  ) %>%
+  filter(!is.na(decimalLatitude), !is.na(decade))
 
-ggplot(data_w_decade, aes(x = decade, y = decimalLatitude)) +
-  stat_summary(fun = mean, geom = "point", color = "blue", size = 3) +
-  stat_summary(fun = mean, geom = "line", color = "blue") +
+# Summarise data: mean and standard error
+lat_summary <- data_w_decade %>%
+  group_by(decade) %>%
+  summarise(
+    mean_lat = mean(decimalLatitude),
+    se_lat = sd(decimalLatitude) / sqrt(n())
+  )
+
+# Plot
+ggplot(lat_summary, aes(x = decade, y = mean_lat)) +
+  geom_line(color = "#2c7bb6", linewidth = 1.2) +
+  geom_point(color = "#2c7bb6", size = 3) +
+  geom_errorbar(aes(ymin = mean_lat - se_lat, ymax = mean_lat + se_lat),
+                width = 2, color = "#2c7bb6", linewidth = 0.8) +
   labs(
     title = "Average Latitude of *Coprimorphus scrutator* by Decade",
+    subtitle = "Mean latitude ± standard error",
     x = "Decade",
     y = "Mean Latitude"
   ) +
-  theme_bw()
+  scale_x_continuous(breaks = seq(min(lat_summary$decade), max(lat_summary$decade), by = 10)) +
+  theme_minimal(base_size = 13) +
+  theme(
+    plot.title = element_text(face = "bold", size = 15),
+    plot.subtitle = element_text(size = 12, margin = margin(b = 10)),
+    axis.title.y = element_text(margin = margin(r = 10)),
+    axis.title.x = element_text(margin = margin(t = 10))
+  )
 
 
 #--------------------------------------------------#
