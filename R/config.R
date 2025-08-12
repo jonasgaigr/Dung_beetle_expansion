@@ -170,13 +170,13 @@ data <-
     locale = locale(encoding = "Windows-1250")
   ) %>%
   dplyr::mutate(
-    DATE = as.Date(as.character(DATUM_OD), format = '%d.%m.%Y'),
+    date = as.Date(as.character(DATUM_OD), format = '%d.%m.%Y'),
     # Redukce data na den
-    DAY = as.numeric(substring(DATUM_OD, 1, 2)),
+    day = as.numeric(substring(DATUM_OD, 7, 8)),
     # Redukce data na měsíc
-    MONTH = as.numeric(substring(DATUM_OD, 4, 5)),
+    month = as.numeric(substring(DATUM_OD, 5, 6)),
     # Redukce data na rok
-    YEAR = as.numeric(substring(DATUM_OD, 7, 11)),
+    year = as.numeric(substring(DATUM_OD, 1, 4)),
     ) %>%
   sf::st_as_sf(
     coords = c(

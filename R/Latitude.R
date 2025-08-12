@@ -137,7 +137,7 @@ ggplot(data = europe) +
 model_c_lat <-
   lm(
     data = data,
-    DATUM_OD ~ Y
+    year ~ decimalLatitude
   )
 summary(model_c_lat)
 
