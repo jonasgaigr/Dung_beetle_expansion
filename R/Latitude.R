@@ -148,3 +148,40 @@ data %>%
   labs(title = "Sampling effort over time", x = "Year", y = "Number of records") +
   theme_bw()
 
+data_cz_decade <- 
+  data %>%
+  mutate(
+    decade = floor(year / 10) * 10
+  ) %>%
+  filter(!is.na(decimalLatitude), !is.na(decade))
+
+# Summarise data: mean and standard error
+lat_summary_cz <- data_cz_decade %>%
+  group_by(decade) %>%
+  summarise(
+    mean_lat = mean(decimalLatitude),
+    se_lat = sd(decimalLatitude) / sqrt(n())
+  )
+
+
+# Plot
+ggplot(lat_summary_cz, aes(x = decade, y = mean_lat)) +
+  geom_line(color = "#2c7bb6", linewidth = 1.2) +
+  geom_point(color = "#2c7bb6", size = 3) +
+  geom_errorbar(aes(ymin = mean_lat - se_lat, ymax = mean_lat + se_lat),
+                width = 2, color = "#2c7bb6", linewidth = 0.8) +
+  labs(
+    title = "Average Latitude of *Coprimorphus scrutator* by Decade",
+    subtitle = "Mean latitude ± standard error",
+    x = "Decade",
+    y = "Mean Latitude"
+  ) +
+  scale_x_continuous(breaks = seq(min(lat_summary$decade), max(lat_summary$decade), by = 10)) +
+  theme_minimal(base_size = 13) +
+  theme(
+    plot.title = element_text(face = "bold", size = 15),
+    plot.subtitle = element_text(size = 12, margin = margin(b = 10)),
+    axis.title.y = element_text(margin = margin(r = 10)),
+    axis.title.x = element_text(margin = margin(t = 10))
+  )
+
