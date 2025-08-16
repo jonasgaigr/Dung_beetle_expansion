@@ -192,6 +192,14 @@ data <-
   dplyr::mutate(
     decimalLongitude = sf::st_coordinates(.)[, 1],
     decimalLatitude = sf::st_coordinates(.)[, 2]
+  ) %>%
+  sf::st_filter(
+    .,
+    czechia_border %>%
+      sf::st_transform(
+        .,
+        crs = 4326
+      ) 
   )
 
 #--------------------------------------------------#
